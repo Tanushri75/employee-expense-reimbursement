@@ -1,0 +1,20 @@
+# Ignore all target folders
+target/
+
+# Eclipse workspace metadata
+.metadata/
+
+# IDE files
+*.iml
+.idea/
+.project
+.classpath
+.settings/
+.factorypath
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

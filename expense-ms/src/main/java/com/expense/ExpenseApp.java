@@ -2,10 +2,13 @@ package com.expense;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.PropertySource;
 
-@PropertySource("classpath:messages.properties")
+
 @SpringBootApplication
+@EnableFeignClients
+@PropertySource("classpath:messages.properties")
 public class ExpenseApp {
 
 	public static void main(String[] args) {

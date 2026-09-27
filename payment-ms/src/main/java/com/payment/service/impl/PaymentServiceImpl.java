@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.payment.client.ExpenseClient;
 import com.payment.dto.PaymentDto;
+import com.payment.dto.UpdateStatusDto;
 import com.payment.entity.Payment;
 import com.payment.enums.PaymentStatus;
 import com.payment.exception.DuplicatePaymentException;
@@ -27,6 +29,7 @@ public class PaymentServiceImpl implements PaymentService {
 	
 	private final PaymentRepository paymentRepository;
 	private final PaymentMapper paymentMapper;
+	private final ExpenseClient expenseClient;
 	
 	@Value("${expense.not.found}")
 	private String expenseNotFound;
@@ -48,8 +51,8 @@ public class PaymentServiceImpl implements PaymentService {
 		Payment payment = paymentMapper.toEntity(paymentDto);
 		paymentRepository.save(payment);
 		log.info("Payment request submitted");
-		processPayment(paymentDto.getId() ,paymentDto.getAmount());			
-		//call expense ms to update status of expense request
+		processPayment(payment);			
+		
 	}
 
 	@Override
@@ -65,18 +68,26 @@ public class PaymentServiceImpl implements PaymentService {
 		return payments.stream().map(paymentMapper::toDto).toList();
 	}
 	
-	@Transactional(rollbackFor = InterruptedException.class)
-	public void processPayment(Long id, Double amount) {
-		log.info("Processing payment worth amount : ", amount);
+	@Transactional(rollbackFor = PaymentFailedException.class)
+	public void processPayment(Payment payment) {
+		log.info("Processing payment worth amount : {}", payment.getAmount());
 		try {
 			Thread.sleep(5000);
-			paymentRepository.modifyUpdatedAt(id);
+			payment.setStatus(PaymentStatus.REIMBURSED);
+			payment.setUpdatedAt(LocalDate.now());
+			paymentRepository.save(payment);
 		}	
 		catch(InterruptedException e) {
-			throw new PaymentFailedException(String.format(paymentFailed, amount, id));			
+			throw new PaymentFailedException(String.format(paymentFailed, payment.getAmount(), payment.getId()));			
 		}
 		log.info("payment successfully processed");
-		
+			
+		callExpenseService(payment.getExpenseId(),payment.getStatus());
+	}
+	
+	public void callExpenseService(Long expenseId, PaymentStatus status) {
+		UpdateStatusDto updateStatusDto = UpdateStatusDto.builder().status(status).build();
+		expenseClient.updateExpenseStatus(expenseId, updateStatusDto);
 	}
 
 }

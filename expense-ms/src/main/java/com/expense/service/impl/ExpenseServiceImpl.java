@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.expense.client.ApprovalClient;
+import com.expense.dto.ApprovalRequestDto;
 import com.expense.dto.ExpenseDto;
 import com.expense.dto.ExpenseResponse;
 import com.expense.dto.UpdateStatusDto;
@@ -24,6 +26,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 	
 	private final ExpenseRepository expenseRepository;
 	private final ExpenseMapper expenseMapper;
+	private final ApprovalClient approvalClient;
 	
 	@Value("${expense.not.found}")
 	private String expenseNotFound;
@@ -38,6 +41,16 @@ public class ExpenseServiceImpl implements ExpenseService {
 		expenseResponse.setId(expense.getId());
 		expenseResponse.setCreatedAt(expense.getCreatedAt());
 		expenseResponse.setStatus(expense.getStatus());
+		
+		// Send approval request to approval-ms
+		ApprovalRequestDto approvalRequestDto = ApprovalRequestDto.builder()
+				.expenseId(expense.getId())
+				.employeeId(expense.getEmployeeId())
+				.amount(expense.getAmount())
+				.build();
+		
+		sendForApproval(approvalRequestDto);
+		
 		return expenseResponse;	
 	}
 
@@ -67,5 +80,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 						throw new ExpenseNotFoundException(String.format(expenseNotFound, id));
 					});	
 	}
-
+	
+	public void sendForApproval(ApprovalRequestDto approvalRequestDto) {
+		approvalClient.createApprovalRequest(approvalRequestDto);
+	}
+	
 }

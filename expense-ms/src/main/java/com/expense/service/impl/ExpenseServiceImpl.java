@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.expense.dto.ExpenseDto;
 import com.expense.dto.ExpenseResponse;
+import com.expense.dto.UpdateStatusDto;
 import com.expense.entity.Expense;
 import com.expense.enums.Status;
 import com.expense.exception.ExpenseNotFoundException;
@@ -55,5 +56,16 @@ public class ExpenseServiceImpl implements ExpenseService {
 			.toList();
 	}
 
+	@Override
+	public void updateExpenseStatus(Long id, UpdateStatusDto updateStatusDto) {
+		expenseRepository.findById(id)
+					.ifPresentOrElse(expense -> {
+						expense.setStatus(updateStatusDto.getStatus());
+						expenseRepository.save(expense);					
+					},
+					() -> {
+						throw new ExpenseNotFoundException(String.format(expenseNotFound, id));
+					});	
+	}
 
 }

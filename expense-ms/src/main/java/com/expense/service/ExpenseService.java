@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.expense.dto.ExpenseDto;
 import com.expense.dto.ExpenseResponse;
+import com.expense.dto.UpdateStatusDto;
 
 public interface ExpenseService {
 	
@@ -13,4 +14,5 @@ public interface ExpenseService {
 	
 	public List<ExpenseDto> getExpensesByEmployeeId(Long employeeId);
 	
+	public void updateExpenseStatus(Long id, UpdateStatusDto updateStatusDto);
 }

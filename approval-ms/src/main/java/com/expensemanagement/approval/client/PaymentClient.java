@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.expensemanagement.approval.dto.PaymentDto;
 
-@FeignClient(name="payment-ms", url="${payment-ms.base.url}")
+@FeignClient(name="payment-ms")
 public interface PaymentClient {
 	
 	@PostMapping("/payments")

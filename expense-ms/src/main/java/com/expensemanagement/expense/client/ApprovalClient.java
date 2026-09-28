@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.expensemanagement.expense.dto.ApprovalRequestDto;
 
 
-@FeignClient(name = "approval-ms", url = "${approval-ms.base.url}")
+@FeignClient(name = "approval-ms")
 public interface ApprovalClient {
 	
 	@PostMapping("/approvals")

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.expensemanagement.approval.dto.UpdateStatusDto;
 
 
-@FeignClient(name="expense-ms", url="${expense-ms.base.url}")
+@FeignClient(name="expense-ms")
 public interface ExpenseClient {
 
 	@PatchMapping("/internal/expenses/{id}")
